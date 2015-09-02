@@ -31,7 +31,6 @@
     </style>
 </head>
 <body>
-
 <div id="container"><br /><br /><br /><br /><br />Generating world...</div>
 <div id="info"><a href="http://threejs.org" target="_blank">three.js</a> - webgl terrain demo<br />(left click: forward, right click: backward)</div>
 
@@ -41,7 +40,7 @@
 
 <script src="src/ImprovedNoise.js"></script>
 <script src="src/Detector.js"></script>
-<script src="node_modules/three.terrain.js/build/THREE.Terrain.min.js"></script>
+<script src="node_modules/three.terrain.js/build/THREE.Terrain.js"></script>
 
 <script>
     'use-strict';
@@ -98,12 +97,13 @@
 
 //        mesh = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { map: texture } ) );
 //        scene.add( mesh );
-
-        var xS = 80, yS = 80;
+        var lamma = new Image();
+        lamma.src = 'assets/default.png';
+        var xS = 63, yS = 63;
         terrainScene = THREE.Terrain({
             easing: THREE.Terrain.Linear,
             frequency: 2.5,
-            heightmap: THREE.Terrain.DiamondSquare,
+            heightmap: lamma,
             material: new THREE.MeshBasicMaterial({color: 0x5566aa}),
             maxHeight: 100,
             minHeight: -100,
@@ -114,18 +114,18 @@
             ySegments: yS,
             ySize: 1024,
         });
-
+        console.log(terrainScene);
         scene.add(terrainScene);
 
-        var geo = terrainScene.children[0].geometry;
-        decoScene = THREE.Terrain.ScatterMeshes(geo, {
-            mesh: new THREE.Mesh(new THREE.CylinderGeometry(2, 2, 12, 6)),
-            w: xS,
-            h: yS,
-            spread: 0.02,
-            randomness: Math.random,
-        });
-        terrainScene.add(decoScene);
+//        var geo = terrainScene.children[0].geometry;
+//        decoScene = THREE.Terrain.ScatterMeshes(geo, {
+//            mesh: new THREE.Mesh(new THREE.CylinderGeometry(2, 2, 12, 6)),
+//            w: xS,
+//            h: yS,
+//            spread: 0.02,
+//            randomness: Math.random,
+//        });
+//        terrainScene.add(decoScene);
 
         renderer = new THREE.WebGLRenderer();
         renderer.setClearColor( 0xbfd1e5 );
@@ -136,8 +136,11 @@
 
         container.appendChild( renderer.domElement );
 
-
-        //
+        canvas = THREE.Terrain.toHeightmap(
+                // terrainScene.children[0] is the most detailed version of the terrain mesh
+                terrainScene.children[0].geometry.vertices,
+                { xSegments: 63, ySegments: 63 }
+        );
 
         window.addEventListener( 'resize', onWindowResize, false );
 

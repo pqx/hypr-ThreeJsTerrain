@@ -1,7 +1,7 @@
 
 <!DOCTYPE html>
 <html lang="en">
-<head>
+  <head>
     <title>three.js webgl - geometry - terrain</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
@@ -57,16 +57,23 @@
 
     var mesh, texture;
 
+    var lamma;
+
     var worldWidth = 256, worldDepth = 256,
             worldHalfWidth = worldWidth / 2, worldHalfDepth = worldDepth / 2;
 
     var clock = new THREE.Clock();
 
-    init();
+    loadImage();
     animate();
 
-    function init() {
+    function loadImage() {
+        lamma = new Image();
+        lamma.onload = function() {init();};
+        lamma.src = 'assets/hkall.png';
+        }
 
+    function init() {
         container = document.getElementById( 'container' );
 
         camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 1, 20000 );
@@ -77,44 +84,21 @@
         controls.movementSpeed = 1000;
         controls.lookSpeed = 0.1;
 
-//        data = generateHeight( worldWidth, worldDepth );
-//
-//        camera.position.y = data[ worldHalfWidth + worldHalfDepth * worldWidth ] * 10 + 500;
-//
-//        var geometry = new THREE.PlaneBufferGeometry( 7500, 7500, worldWidth - 1, worldDepth - 1 );
-//        geometry.applyMatrix( new THREE.Matrix4().makeRotationX( - Math.PI / 2 ) );
-//
-//        var vertices = geometry.attributes.position.array;
-//
-//        for ( var i = 0, j = 0, l = vertices.length; i < l; i ++, j += 3 ) {
-//
-//            vertices[ j + 1 ] = data[ i ] * 10;
-//
-//        }
-
-//        texture = new THREE.Texture( generateTexture( data, worldWidth, worldDepth ), THREE.UVMapping, THREE.ClampToEdgeWrapping, THREE.ClampToEdgeWrapping );
-//        texture.needsUpdate = true;
-
-//        mesh = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { map: texture } ) );
-//        scene.add( mesh );
-        var lamma = new Image();
-        lamma.src = 'assets/default.png';
-        var xS = 63, yS = 63;
+        var xS = 600, yS = 600;
         terrainScene = THREE.Terrain({
             easing: THREE.Terrain.Linear,
             frequency: 2.5,
             heightmap: lamma,
-            material: new THREE.MeshBasicMaterial({color: 0x5566aa}),
+            material: new THREE.MeshBasicMaterial({color: 0x000000, wireframe: true}),
             maxHeight: 100,
             minHeight: -100,
             steps: 1,
             useBufferGeometry: false,
             xSegments: xS,
-            xSize: 1024,
+            xSize: 3096,
             ySegments: yS,
-            ySize: 1024,
+            ySize: 3096,
         });
-        console.log(terrainScene);
         scene.add(terrainScene);
 
 //        var geo = terrainScene.children[0].geometry;

@@ -57,7 +57,7 @@
 
     var mesh, texture;
 
-    var lamma;
+    var lamma, raycaster, mouse, INTERSECTED;
 
     var worldWidth = 256, worldDepth = 256,
             worldHalfWidth = worldWidth / 2, worldHalfDepth = worldDepth / 2;
@@ -70,7 +70,7 @@
     function loadImage() {
         lamma = new Image();
         lamma.onload = function() {init();};
-        lamma.src = 'assets/hkall.png';
+        lamma.src = 'assets/lamma.png';
         }
 
     function init() {
@@ -80,18 +80,22 @@
 
         scene = new THREE.Scene();
 
+        raycaster = new THREE.Raycaster();
+        mouse = new THREE.Vector2();
+
         controls = new THREE.FirstPersonControls( camera );
         controls.movementSpeed = 1000;
         controls.lookSpeed = 0.1;
 
-        var xS = 600, yS = 600;
+        var xS = 300, yS = 300;
         terrainScene = THREE.Terrain({
             easing: THREE.Terrain.Linear,
             frequency: 2.5,
             heightmap: lamma,
-            material: new THREE.MeshBasicMaterial({color: 0x000000, wireframe: true}),
-            maxHeight: 100,
-            minHeight: -100,
+            material: new THREE.MeshLambertMaterial({color: 0x000000, wireframe: true}),
+            maxHeight: 800,
+            minHeight: 0,
+            stretch: false,
             steps: 1,
             useBufferGeometry: false,
             xSegments: xS,
@@ -100,6 +104,9 @@
             ySize: 3096,
         });
         scene.add(terrainScene);
+        scene.add(new THREE.AmbientLight(0xeeeeee));
+
+
 
 //        var geo = terrainScene.children[0].geometry;
 //        decoScene = THREE.Terrain.ScatterMeshes(geo, {
@@ -120,13 +127,17 @@
 
         container.appendChild( renderer.domElement );
 
-        canvas = THREE.Terrain.toHeightmap(
-                // terrainScene.children[0] is the most detailed version of the terrain mesh
-                terrainScene.children[0].geometry.vertices,
-                { xSegments: 63, ySegments: 63 }
-        );
-
         window.addEventListener( 'resize', onWindowResize, false );
+
+    }
+    document.addEventListener('mousemove', onDocumentMouseMove, false);
+
+    function onDocumentMouseMove(event) {
+
+        event.preventDefault();
+
+        mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+        mouse.y = -( event.clientY / window.innerHeight ) * 2 + 1;
 
     }
 
@@ -240,10 +251,30 @@
     }
 
     function render() {
-
         controls.update( clock.getDelta() );
         renderer.render( scene, camera );
+        raycaster.setFromCamera(mouse, camera);
 
+        var intersects = raycaster.intersectObjects(scene.children);
+        if (intersects.length > 0) {
+
+            if (INTERSECTED != intersects[0].object) {
+
+                if (INTERSECTED) INTERSECTED.material.emissive.setHex(INTERSECTED.currentHex);
+
+                INTERSECTED = intersects[0].object;
+                INTERSECTED.currentHex = INTERSECTED.material.emissive.getHex();
+                INTERSECTED.material.emissive.setHex(0xff0000);
+                console.log(INTERSECTED);
+
+            }
+
+        } else {
+
+            if (INTERSECTED) INTERSECTED.material.emissive.setHex(INTERSECTED.currentHex);
+            INTERSECTED = null;
+
+        }
     }
 
 </script>
